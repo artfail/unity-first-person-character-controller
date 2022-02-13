@@ -1,4 +1,4 @@
-#Unity first person character controller
+Unity first person rigidbody character controller
 by John Bruneau.
 
 I was frustrated that Unity's old character controller was deprecated and broken, and their new one was overly complex and missing the benefits of a rigidbody.
