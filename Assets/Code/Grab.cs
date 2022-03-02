@@ -12,7 +12,8 @@ public class Grab : MonoBehaviour
     public Transform holdPoint; // where the players hand would be
     public Transform camTrans; // reference to the camera's transform
     private bool reticleTarget = false; // this check is used to track if the reticle is over a valid target
-    public LayerMask grabbableLayers; // What layers can be grabbed
+    public LayerMask grabbableLayerMask; // What layer can be grabbed
+    private int grabbableLayer; //The grabbableLayer as an int
     private int ignorePlayerLayer; //This layer does not collide with the player
     private int originalLayer; //Here we can save the original layer the object was on that was picked up
     private Transform heldObject = null; // The held object's transform if a object is held
@@ -20,8 +21,10 @@ public class Grab : MonoBehaviour
 
     private void Start()
     {
-        //This gets the layer number from the IgnorePlayer so we dont have to track it ourselves
+        //This gets the layer numbers for IgnorePlayer and grabbable so we dont have to track it ourselves
         ignorePlayerLayer = LayerMask.NameToLayer("IgnorePlayer");
+        grabbableLayer = LayerMask.NameToLayer("Grabbable");
+
     }
 
     void Update()
@@ -45,7 +48,7 @@ public class Grab : MonoBehaviour
         //Cast a ray from the camera position in the direction the camera is facing for a distance of raycastDist.
         //Return a collision with an object on a grabbable layer if one is detected.
         RaycastHit hit;
-        if (Physics.Raycast(camTrans.position, camTrans.forward, out hit, raycastDist, grabbableLayers))
+        if (Physics.Raycast(camTrans.position, camTrans.forward, out hit, raycastDist, grabbableLayerMask))
         {
             StartCoroutine(PickUpObject(hit.transform)); //pass in the transform of the collider that was hit
         }
@@ -100,10 +103,10 @@ public class Grab : MonoBehaviour
 
     private void FixedUpdate()
     {
-        RaycastHit hit;
-        if (Physics.Raycast(camTrans.position, camTrans.forward, out hit, raycastDist, grabbableLayers))
+        RaycastHit hit; //Cast a ray check if its blocked
+        if (Physics.Raycast(camTrans.position, camTrans.forward, out hit, raycastDist) && hit.collider.gameObject.layer == grabbableLayer)
         {
-            //Cast a ray and if the retical is not already red change its color
+            //If the retical is not already red change its color
             if (!reticleTarget)
             {
                 reticle.color = Color.red;
