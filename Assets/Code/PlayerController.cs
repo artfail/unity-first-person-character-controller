@@ -5,7 +5,8 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     int moveSpeed = 5; // how fast the player moves
-    float lookSpeed = 3; // mouse sensitivity
+    float lookSpeedX = 6; // left/right mouse sensitivity
+    float lookSpeedY = 3; // up/down mouse sensitivity
     int jumpForce = 300; // ammount of force applied to create a jump
 
     public Transform camTrans; // a reference to the camera transform
@@ -22,6 +23,10 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        lookSpeedX *= .65f; //WebGL has a bug where the mouse has higher sensitibity. This compensates for the change. 
+        lookSpeedY *= .65f; //.65 is a rough guess based on testing in firefox.
+#endif
         _rigidbody = GetComponent<Rigidbody>(); // Using GetComponent is expensive. Always do it in start and chache it when you can.
         Cursor.lockState = CursorLockMode.Locked; // Hides the mouse and locks it to the center of the screen.
     }
@@ -41,10 +46,10 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        yRotation += Input.GetAxis("Mouse X") * 2; //Move left right rotation twice as fast as up down, change this to what feels right.
-        xRotation -= Input.GetAxis("Mouse Y"); //Y is inverted
-        xRotation = Mathf.Clamp(xRotation, -30, 30); //Keeps up/down head rotation realistic
-        camTrans.localEulerAngles = new Vector3(xRotation, 0, 0) * lookSpeed;
+        yRotation += Input.GetAxis("Mouse X") * lookSpeedX;
+        xRotation -= Input.GetAxis("Mouse Y") * lookSpeedY; //Y is inverted
+        xRotation = Mathf.Clamp(xRotation, -90, 90); //Keeps up/down head rotation realistic
+        camTrans.localEulerAngles = new Vector3(xRotation, 0, 0);
         transform.eulerAngles = new Vector3(0, yRotation, 0);
 
         if (grounded && Input.GetButtonDown("Jump")) //if the player is on the ground and press Spacebar
